@@ -6,11 +6,13 @@ import com.example.UserProduct.exception.ProductNotFoundException;
 import com.example.UserProduct.exception.UserAlreadyFoundException;
 import com.example.UserProduct.exception.UserNotFoundException;
 import com.example.UserProduct.service.UserService;
+import io.jsonwebtoken.Claims;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import javax.servlet.http.HttpServletRequest;
 import java.util.ArrayList;
 @RestController
 @RequestMapping("/userProductapp/user")
@@ -37,10 +39,17 @@ public class UserController {
         return responseEntity;
     }
 
-    @PutMapping("/product/{userId}")
-    public ResponseEntity<?> addProductFromUser(@PathVariable String userId,@RequestBody Product product)throws UserNotFoundException{
+    @PutMapping("/product/addProduct")
+    public ResponseEntity<?> addProductFromUser(HttpServletRequest request, @RequestBody Product product)throws UserNotFoundException{
         ResponseEntity responseEntity=null;
         try{
+
+            Claims claims = (Claims) request.getAttribute("claims");
+            String userId = claims.getSubject();
+            System.out.println("user Id from claims :: " + claims.getSubject());
+
+
+          //  responseEntity = new ResponseEntity<>(userMovieService.saveUserMovieToList(movie, email), HttpStatus.CREATED);
             responseEntity=new ResponseEntity<>(userService.addProductForUser(userId,product),HttpStatus.OK);
         }catch (UserNotFoundException e){
             responseEntity=new ResponseEntity<>(e.getMessage(),HttpStatus.INTERNAL_SERVER_ERROR);
